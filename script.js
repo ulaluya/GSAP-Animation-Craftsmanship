@@ -81,6 +81,8 @@ window.addEventListener('mousemove', (e) => {
 
 window.addEventListener('resize', () => {
     app.renderer.resize(window.innerWidth, window.innerHeight);
+    // Также обновляем ScrollTrigger при изменении размера окна
+    ScrollTrigger.refresh();
 });
 
 
@@ -97,33 +99,56 @@ function setupIntroAnimation() {
       .fromTo(".cta-button", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.4");
 }
 
-// !!! ВРЕМЕННЫЙ ТЕСТ: АНИМАЦИЯ ПРИ ЗАГРУЗКЕ !!!
-function setupTestAnimation() {
-    console.log("TEST: Запуск тестовой анимации сетки через 2 секунды...");
+function setupScrollAnimations() {
     
-    // Скрываем элементы, чтобы GSAP мог их показать
-    gsap.set(".feature-item", { opacity: 0, y: 50 });
+    // Анимация пиннинга
+    ScrollTrigger.create({
+        trigger: ".pinned-section",
+        pin: true, 
+        start: "top top", 
+        end: "+=200%", 
+        markers: true // Отображает маркеры ScrollTrigger для отладки
+    });
     
-    // Анимация должна начаться через 2 секунды после загрузки страницы
-    gsap.to(".feature-item", { 
-        y: 0, 
-        opacity: 1, 
-        duration: 1.5, 
-        stagger: 0.2,
+    // Анимация появления контента внутри пиннинга
+    gsap.from(".pinned-content", {
+        y: 50,
+        opacity: 0,
+        duration: 1.2,
         ease: "power2.out",
-        delay: 2 // Начнется через 2 секунды
+        scrollTrigger: {
+            trigger: ".pinned-section",
+            start: "top center", // Начинаем, когда секция доходит до центра экрана
+            end: "top 20%",
+            scrub: true,
+        }
     });
-    
-    // Также проверяем анимацию текста, чтобы убедиться, что .pinned-content реагирует
-    gsap.to(".pinned-content", {
-        y: 0,
-        opacity: 1,
-        duration: 1.5,
-        delay: 2
-    });
+
+    // Анимация появления элементов сетки (stagger)
+    gsap.fromTo(".feature-item", 
+        { y: 50, opacity: 0 }, // Начальное состояние: y=50px, полностью прозрачный
+        {
+            y: 0,           // Конечное состояние: y=0px (вернуть на место)
+            opacity: 1,     // Конечное состояние: полностью видимый
+            stagger: 0.3, 
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+                trigger: ".feature-grid", // Триггером является feature-grid
+                start: "top 80%",          // Когда верх feature-grid дойдет до 80% снизу экрана
+                toggleActions: "play none none reverse", // Один раз проиграть, при обратной прокрутке отменить
+                markers: true         // Отображает маркеры ScrollTrigger для отладки
+            }
+        }
+    );
 }
 
-
+// Запускаем все анимации
 setupIntroAnimation();
-// setupScrollAnimations(); // ОТКЛЮЧЕНО
-setupTestAnimation(); // ВКЛЮЧЕНА ТЕСТОВАЯ АНИМАЦИЯ
+setupScrollAnimations();
+
+// !!! КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ПРИНУДИТЕЛЬНО ОБНОВЛЯЕМ SCROLLTRIGGER ПОСЛЕ ЗАГРУЗКИ !!!
+// Это гарантирует, что он правильно рассчитает общую высоту страницы и пиннинг.
+window.onload = () => {
+    ScrollTrigger.refresh();
+};
