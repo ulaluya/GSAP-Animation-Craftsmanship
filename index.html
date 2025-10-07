@@ -3,26 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GSAP Timeline & Scroll Demo</title>
+    <title>Aura - GSAP Premium Showcase</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
 <body>
 
-    <header class="hero-section">
-        <h1 class="main-title">Добро пожаловать</h1>
-        <div class="subtitle">GSAP - Анимации нового поколения</div>
-        <button class="cta-button">Смотреть проекты</button>
-    </header>
+    <div class="cursor-follower"></div>
 
-    <section class="scroll-section">
-        <h2>Секция ScrollTrigger</h2>
-        <div class="scroll-box"></div>
-        <p>Прокрутите вниз, чтобы увидеть, как это работает.</p>
+    <section class="hero-section section-full bg-dark" data-bg-color="#0F0F0F">
+        <h1 class="main-title split-text">Aura</h1>
+        <p class="subtitle fade-in">Эксклюзивность в каждом движении</p>
+        <button class="cta-button fade-in">Узнать больше</button>
+        <div class="scroll-down-indicator"></div>
     </section>
 
-    <div style="height: 150vh;"></div> 
+    <section class="pinned-section section-full bg-light" data-bg-color="#F2F2F2">
+        <div class="pinned-content">
+            <h2 class="section-title reveal-text">Искусство, созданное для вас</h2>
+            <div class="feature-grid">
+                <div class="feature-item reveal-item">
+                    <img src="https://via.placeholder.com/100x100?text=Icon1" alt="Icon 1">
+                    <h3>Превосходное качество</h3>
+                    <p>Каждая деталь продумана до мелочей.</p>
+                </div>
+                <div class="feature-item reveal-item">
+                    <img src="https://via.placeholder.com/100x100?text=Icon2" alt="Icon 2">
+                    <h3>Уникальный дизайн</h3>
+                    <p>Индивидуальный подход к каждому проекту.</p>
+                </div>
+                <div class="feature-item reveal-item">
+                    <img src="https://via.placeholder.com/100x100?text=Icon3" alt="Icon 3">
+                    <h3>Безупречный сервис</h3>
+                    <p>Наши специалисты всегда к вашим услугам.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="parallax-section section-full bg-parallax" data-bg-color="#333333">
+        <div class="parallax-overlay"></div>
+        <h2 class="parallax-title reveal-text">Погрузитесь в мир Aura</h2>
+        <p class="parallax-text fade-in">Исследуйте наши возможности.</p>
+    </section>
+
+    <footer class="footer-section bg-dark">
+        <p>&copy; 2024 Aura. Все права защищены.</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>
