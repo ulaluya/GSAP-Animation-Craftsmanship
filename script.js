@@ -116,18 +116,22 @@ function setupScrollAnimations() {
         }
     });
 
-    gsap.from(".feature-item", {
-        y: 50,
-        opacity: 0,
-        stagger: 0.3, 
-        duration: 1,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: ".feature-grid",
-            start: "top 80%", 
-            toggleActions: "play none none reverse", 
+    gsap.fromTo(".feature-item", 
+        { y: 50, opacity: 0 }, // Начальное состояние: y=50px, полностью прозрачный
+        {
+            y: 0,              // Конечное состояние: y=0px (вернуть на место)
+            opacity: 1,        // Конечное состояние: полностью видимый
+            stagger: 0.3, 
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+                trigger: ".feature-grid", // Триггером является feature-grid
+                start: "top 80%",         // Когда верх feature-grid дойдет до 80% снизу экрана
+                toggleActions: "play none none reverse", // Один раз проиграть, при обратной прокрутке отменить
+                markers: true       
+            }
         }
-    });
+    );
 }
 
 setupIntroAnimation();
