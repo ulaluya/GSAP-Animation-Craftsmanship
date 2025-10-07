@@ -104,15 +104,16 @@ function setupScrollAnimations() {
     // Единый таймлайн: pin + анимации внутри, чтобы не было рассинхрона
     const pinTl = gsap.timeline({
         defaults: { ease: "power2.out" },
+        gsap.to("#pixi-canvas", {
+        y: () => -document.body.offsetHeight * 0.1, // Смещаем на 10% от высоты тела
+        ease: "none",
         scrollTrigger: {
-            trigger: ".pinned-section",
-            start: "top top",
-            end: "+=200%",
-            pin: true,
-            scrub: true,
-            // id: "pinned-section-scroll" // Добавляем ID для отладки
-        }
-    });
+        trigger: "body",
+        start: "top top",
+        end: "bottom top",
+        scrub: true, // Плавное движение, привязанное к скроллу
+    }
+});
 
     pinTl
         .fromTo(".pinned-content", { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, 0)
