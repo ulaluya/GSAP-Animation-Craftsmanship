@@ -8,7 +8,7 @@
 
 body {
     margin: 0;
-    font-family: 'Roboto', sans-serif; /* Более современный шрифт */
+    font-family: 'Roboto', sans-serif; 
     background-color: var(--color-dark);
     color: var(--color-text-light);
     overflow-x: hidden;
