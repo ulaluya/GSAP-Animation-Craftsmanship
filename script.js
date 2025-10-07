@@ -3,15 +3,20 @@ gsap.registerPlugin(ScrollTrigger);
 // ------------------------------------
 // PIXI.JS: DYNAMIC PARTICLE BACKGROUND (СЛЕД КУРСОРА)
 // ------------------------------------
+
+// Получаем DOM-элемент контейнера
+const pixiCanvasContainer = document.getElementById('pixi-canvas');
+
 const app = new PIXI.Application({
-    // Получаем DOM-элемент по ID - теперь он точно существует!
-    view: document.getElementById('pixi-canvas'), 
     width: window.innerWidth,
     height: window.innerHeight,
     backgroundColor: 0x0F0F0F, // Очень темный фон
     resolution: window.devicePixelRatio || 1,
     autoDensity: true,
 });
+
+// Добавляем созданный PIXI.js canvas в ваш div-контейнер
+pixiCanvasContainer.appendChild(app.view);
 
 const particles = [];
 let mouse = { x: 0, y: 0 };
@@ -22,7 +27,6 @@ function createParticle(x, y) {
     const particle = new PIXI.Graphics();
     const size = Math.random() * 5 + 3; 
     
-    // Используем акцентные цвета (голубой или оранжевый/красный)
     const color = Math.random() > 0.5 ? 0x00bcd4 : 0xff5722; 
     
     particle.beginFill(color); 
@@ -36,7 +40,6 @@ function createParticle(x, y) {
     particle.alpha = 0.8;
     particle.mass = 0.98;
     
-    // GSAP управляет исчезновением частицы
     gsap.to(particle, {
         alpha: 0,
         duration: Math.random() * 2 + 1, 
@@ -52,14 +55,11 @@ function createParticle(x, y) {
     particles.push(particle);
 }
 
-// Обновление частиц на каждый кадр
 app.ticker.add(() => {
-    // Генерируем частицы в позиции курсора
     for (let i = 0; i < particleCount; i++) {
         createParticle(mouse.x, mouse.y);
     }
     
-    // Анимируем существующие частицы (смещение)
     particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
@@ -68,13 +68,11 @@ app.ticker.add(() => {
     });
 });
 
-// Отслеживание позиции курсора
 window.addEventListener('mousemove', (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
 });
 
-// Адаптивность Pixi.js
 window.addEventListener('resize', () => {
     app.renderer.resize(window.innerWidth, window.innerHeight);
 });
@@ -87,7 +85,6 @@ window.addEventListener('resize', () => {
 function setupIntroAnimation() {
     const tl = gsap.timeline({ defaults: { duration: 1.2, ease: "power3.out" } });
 
-    // Убираем смену фона, так как фон теперь Pixi.js
     tl.fromTo(".scroll-down-indicator", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 }, "-=0.5")
       .fromTo(".main-title", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1 }, "<") 
       .fromTo(".subtitle", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.6")
@@ -96,10 +93,8 @@ function setupIntroAnimation() {
 
 function setupScrollAnimations() {
     
-    // Меняем фон <body> на черный для лучшего эффекта
     gsap.to("body", { backgroundColor: '#0F0F0F', duration: 0.8 }); 
 
-    // Пиннинг секции и появление контента внутри нее
     ScrollTrigger.create({
         trigger: ".pinned-section",
         pin: true, 
@@ -107,7 +102,6 @@ function setupScrollAnimations() {
         end: "+=200%", 
     });
 
-    // Появление заголовка и элементов сетки 
     gsap.from(".pinned-content", {
         y: 50,
         opacity: 0,
@@ -121,7 +115,6 @@ function setupScrollAnimations() {
         }
     });
 
-    // Анимация появления элементов сетки
     gsap.from(".feature-item", {
         y: 50,
         opacity: 0,
@@ -136,6 +129,5 @@ function setupScrollAnimations() {
     });
 }
 
-// Запускаем все (т.к. скрипт в конце <body>, он сработает корректно)
 setupIntroAnimation();
 setupScrollAnimations();
