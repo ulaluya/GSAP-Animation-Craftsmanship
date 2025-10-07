@@ -1,11 +1,11 @@
-window.onload = function() {
 gsap.registerPlugin(ScrollTrigger);
 
 // ------------------------------------
-// PIXI.JS: DYNAMIC PARTICLE BACKGROUND
+// PIXI.JS: DYNAMIC PARTICLE BACKGROUND (СЛЕД КУРСОРА)
 // ------------------------------------
 const app = new PIXI.Application({
-    view: document.getElementById('pixi-canvas'),
+    // Получаем DOM-элемент по ID - теперь он точно существует!
+    view: document.getElementById('pixi-canvas'), 
     width: window.innerWidth,
     height: window.innerHeight,
     backgroundColor: 0x0F0F0F, // Очень темный фон
@@ -13,36 +13,33 @@ const app = new PIXI.Application({
     autoDensity: true,
 });
 
-// Система для хранения и управления частицами
 const particles = [];
 let mouse = { x: 0, y: 0 };
-const particleCount = 1; // Сколько частиц генерировать за кадр
+const particleCount = 1;
 
 // Настройка системы частиц
 function createParticle(x, y) {
-    // Создаем кружок (графику)
     const particle = new PIXI.Graphics();
     const size = Math.random() * 5 + 3; 
-    particle.beginFill(0x00bcd4); // Используем наш акцентный цвет
     
-    // Градиентный эффект: цветной дым, затухающий к краям
-    const color = Math.random() > 0.5 ? 0x00bcd4 : 0xff5722; // Случайный акцентный или оранжевый цвет
-    particle.tint = color; 
+    // Используем акцентные цвета (голубой или оранжевый/красный)
+    const color = Math.random() > 0.5 ? 0x00bcd4 : 0xff5722; 
     
+    particle.beginFill(color); 
     particle.drawCircle(0, 0, size);
     particle.endFill();
 
     particle.x = x;
     particle.y = y;
-    particle.vx = (Math.random() - 0.5) * 0.5; // Случайная скорость
+    particle.vx = (Math.random() - 0.5) * 0.5;
     particle.vy = (Math.random() - 0.5) * 0.5;
     particle.alpha = 0.8;
-    particle.mass = 0.98; // Коэффициент затухания
+    particle.mass = 0.98;
     
-    // GSAP управляет жизненным циклом частицы
+    // GSAP управляет исчезновением частицы
     gsap.to(particle, {
         alpha: 0,
-        duration: Math.random() * 2 + 1, // Живет от 1 до 3 секунд
+        duration: Math.random() * 2 + 1, 
         ease: "power1.out",
         onComplete: () => {
             app.stage.removeChild(particle);
@@ -62,7 +59,7 @@ app.ticker.add(() => {
         createParticle(mouse.x, mouse.y);
     }
     
-    // Анимируем существующие частицы
+    // Анимируем существующие частицы (смещение)
     particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
@@ -87,24 +84,22 @@ window.addEventListener('resize', () => {
 // GSAP: CONTENT ANIMATIONS
 // ------------------------------------
 
-// Анимация при загрузке страницы (Timeline)
 function setupIntroAnimation() {
     const tl = gsap.timeline({ defaults: { duration: 1.2, ease: "power3.out" } });
 
-    // Убираем анимацию смены фона (теперь за это отвечает Pixi.js)
+    // Убираем смену фона, так как фон теперь Pixi.js
     tl.fromTo(".scroll-down-indicator", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 }, "-=0.5")
       .fromTo(".main-title", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1 }, "<") 
       .fromTo(".subtitle", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.6")
       .fromTo(".cta-button", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.4");
 }
 
-// Анимации при прокрутке (ScrollTrigger)
 function setupScrollAnimations() {
     
-    // 1. Убираем анимацию фона секций (теперь только тело документа)
+    // Меняем фон <body> на черный для лучшего эффекта
     gsap.to("body", { backgroundColor: '#0F0F0F', duration: 0.8 }); 
 
-    // 2. Пиннинг секции и появление контента внутри нее (ОСТАВЛЯЕМ)
+    // Пиннинг секции и появление контента внутри нее
     ScrollTrigger.create({
         trigger: ".pinned-section",
         pin: true, 
@@ -139,10 +134,8 @@ function setupScrollAnimations() {
             toggleActions: "play none none reverse", 
         }
     });
-
 }
 
-// Запускаем все
+// Запускаем все (т.к. скрипт в конце <body>, он сработает корректно)
 setupIntroAnimation();
 setupScrollAnimations();
-};
