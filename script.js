@@ -16,7 +16,12 @@ const app = new PIXI.Application({
 });
 
 // Добавляем созданный PIXI.js canvas в ваш div-контейнер
-pixiCanvasContainer.appendChild(app.view);
+if (pixiCanvasContainer) {
+    pixiCanvasContainer.appendChild(app.view);
+} else {
+    console.error("PIXI.js: Контейнер #pixi-canvas не найден.");
+}
+
 
 const particles = [];
 let mouse = { x: 0, y: 0 };
@@ -55,6 +60,7 @@ function createParticle(x, y) {
     particles.push(particle);
 }
 
+// Цикл рендера
 app.ticker.add(() => {
     for (let i = 0; i < particleCount; i++) {
         createParticle(mouse.x, mouse.y);
@@ -91,48 +97,33 @@ function setupIntroAnimation() {
       .fromTo(".cta-button", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.4");
 }
 
-function setupScrollAnimations() {
+// !!! ВРЕМЕННЫЙ ТЕСТ: АНИМАЦИЯ ПРИ ЗАГРУЗКЕ !!!
+function setupTestAnimation() {
+    console.log("TEST: Запуск тестовой анимации сетки через 2 секунды...");
     
-    gsap.to("body", { backgroundColor: '#0F0F0F', duration: 0.8 }); 
-
-    ScrollTrigger.create({
-        trigger: ".pinned-section",
-        pin: true, 
-        start: "top top", 
-        end: "+=200%", 
-        markers: true
-    });
-
-    gsap.from(".pinned-content", {
-        y: 50,
-        opacity: 0,
-        duration: 1.2,
+    // Скрываем элементы, чтобы GSAP мог их показать
+    gsap.set(".feature-item", { opacity: 0, y: 50 });
+    
+    // Анимация должна начаться через 2 секунды после загрузки страницы
+    gsap.to(".feature-item", { 
+        y: 0, 
+        opacity: 1, 
+        duration: 1.5, 
+        stagger: 0.2,
         ease: "power2.out",
-        scrollTrigger: {
-            trigger: ".pinned-section",
-            start: "top center",
-            end: "top 20%",
-            scrub: true,
-        }
+        delay: 2 // Начнется через 2 секунды
     });
-
-    gsap.fromTo(".feature-item", 
-        { y: 50, opacity: 0 }, // Начальное состояние: y=50px, полностью прозрачный
-        {
-            y: 0,              // Конечное состояние: y=0px (вернуть на место)
-            opacity: 1,        // Конечное состояние: полностью видимый
-            stagger: 0.3, 
-            duration: 1,
-            ease: "power2.out",
-            scrollTrigger: {
-                trigger: ".feature-grid", // Триггером является feature-grid
-                start: "top 80%",         // Когда верх feature-grid дойдет до 80% снизу экрана
-                toggleActions: "play none none reverse", // Один раз проиграть, при обратной прокрутке отменить
-                markers: true       
-            }
-        }
-    );
+    
+    // Также проверяем анимацию текста, чтобы убедиться, что .pinned-content реагирует
+    gsap.to(".pinned-content", {
+        y: 0,
+        opacity: 1,
+        duration: 1.5,
+        delay: 2
+    });
 }
 
+
 setupIntroAnimation();
-setupScrollAnimations();
+// setupScrollAnimations(); // ОТКЛЮЧЕНО
+setupTestAnimation(); // ВКЛЮЧЕНА ТЕСТОВАЯ АНИМАЦИЯ
