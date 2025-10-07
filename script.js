@@ -1,3 +1,4 @@
+window.onload = function() {
 gsap.registerPlugin(ScrollTrigger);
 
 // ------------------------------------
@@ -144,3 +145,4 @@ function setupScrollAnimations() {
 // Запускаем все
 setupIntroAnimation();
 setupScrollAnimations();
+};
