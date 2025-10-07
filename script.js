@@ -97,58 +97,34 @@ function setupIntroAnimation() {
       .fromTo(".main-title", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1 }, "<") 
       .fromTo(".subtitle", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.6")
       .fromTo(".cta-button", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.4");
+    
 }
 
 function setupScrollAnimations() {
-    
-    // Анимация пиннинга
-    ScrollTrigger.create({
-        trigger: ".pinned-section",
-        pin: true, 
-        start: "top top", 
-        end: "+=200%", 
-        markers: true // Отображает маркеры ScrollTrigger для отладки
-    });
-    
-    // Анимация появления контента внутри пиннинга
-    gsap.from(".pinned-content", {
-        y: 50,
-        opacity: 0,
-        duration: 1.2,
-        ease: "power2.out",
+    // Единый таймлайн: pin + анимации внутри, чтобы не было рассинхрона
+    const pinTl = gsap.timeline({
+        defaults: { ease: "power2.out" },
         scrollTrigger: {
             trigger: ".pinned-section",
-            start: "top center", // Начинаем, когда секция доходит до центра экрана
-            end: "top 20%",
+            start: "top top",
+            end: "+=200%",
+            pin: true,
             scrub: true,
+            // id: "pinned-section-scroll" // Добавляем ID для отладки
         }
     });
 
-    // Анимация появления элементов сетки (stagger)
-    gsap.fromTo(".feature-item", 
-        { y: 50, opacity: 0 }, // Начальное состояние: y=50px, полностью прозрачный
-        {
-            y: 0,           // Конечное состояние: y=0px (вернуть на место)
-            opacity: 1,     // Конечное состояние: полностью видимый
-            stagger: 0.3, 
-            duration: 1,
-            ease: "power2.out",
-            scrollTrigger: {
-                trigger: ".feature-grid", // Триггером является feature-grid
-                start: "top 80%",          // Когда верх feature-grid дойдет до 80% снизу экрана
-                toggleActions: "play none none reverse", // Один раз проиграть, при обратной прокрутке отменить
-                markers: true         // Отображает маркеры ScrollTrigger для отладки
-            }
-        }
-    );
+    pinTl
+        .fromTo(".pinned-content", { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, 0)
+        .fromTo(".feature-item", { y: 60, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.25, duration: 0.8 }, 0.2);
+    
 }
 
-// Запускаем все анимации
-setupIntroAnimation();
-setupScrollAnimations();
+// Запускаем все анимации после полной загрузки (DOM + изображения)
+window.addEventListener('load', () => {
+    setupIntroAnimation();
+    setupScrollAnimations();
 
-// !!! КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ПРИНУДИТЕЛЬНО ОБНОВЛЯЕМ SCROLLTRIGGER ПОСЛЕ ЗАГРУЗКИ !!!
-// Это гарантирует, что он правильно рассчитает общую высоту страницы и пиннинг.
-window.onload = () => {
+    // После загрузки всего контента пересчитываем позиции
     ScrollTrigger.refresh();
-};
+});
