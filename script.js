@@ -1,22 +1,97 @@
 gsap.registerPlugin(ScrollTrigger);
 
-// Плавное следование курсора (микроанимация)
-document.addEventListener('mousemove', function(e) {
-    gsap.to(".cursor-follower", {
-        x: e.clientX,
-        y: e.clientY,
-        duration: 0.5,
-        ease: "power2.out"
+// ------------------------------------
+// PIXI.JS: DYNAMIC PARTICLE BACKGROUND
+// ------------------------------------
+const app = new PIXI.Application({
+    view: document.getElementById('pixi-canvas'),
+    width: window.innerWidth,
+    height: window.innerHeight,
+    backgroundColor: 0x0F0F0F, // Очень темный фон
+    resolution: window.devicePixelRatio || 1,
+    autoDensity: true,
+});
+
+// Система для хранения и управления частицами
+const particles = [];
+let mouse = { x: 0, y: 0 };
+const particleCount = 1; // Сколько частиц генерировать за кадр
+
+// Настройка системы частиц
+function createParticle(x, y) {
+    // Создаем кружок (графику)
+    const particle = new PIXI.Graphics();
+    const size = Math.random() * 5 + 3; 
+    particle.beginFill(0x00bcd4); // Используем наш акцентный цвет
+    
+    // Градиентный эффект: цветной дым, затухающий к краям
+    const color = Math.random() > 0.5 ? 0x00bcd4 : 0xff5722; // Случайный акцентный или оранжевый цвет
+    particle.tint = color; 
+    
+    particle.drawCircle(0, 0, size);
+    particle.endFill();
+
+    particle.x = x;
+    particle.y = y;
+    particle.vx = (Math.random() - 0.5) * 0.5; // Случайная скорость
+    particle.vy = (Math.random() - 0.5) * 0.5;
+    particle.alpha = 0.8;
+    particle.mass = 0.98; // Коэффициент затухания
+    
+    // GSAP управляет жизненным циклом частицы
+    gsap.to(particle, {
+        alpha: 0,
+        duration: Math.random() * 2 + 1, // Живет от 1 до 3 секунд
+        ease: "power1.out",
+        onComplete: () => {
+            app.stage.removeChild(particle);
+            particles.splice(particles.indexOf(particle), 1);
+            particle.destroy();
+        }
+    });
+
+    app.stage.addChild(particle);
+    particles.push(particle);
+}
+
+// Обновление частиц на каждый кадр
+app.ticker.add(() => {
+    // Генерируем частицы в позиции курсора
+    for (let i = 0; i < particleCount; i++) {
+        createParticle(mouse.x, mouse.y);
+    }
+    
+    // Анимируем существующие частицы
+    particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.scale.x *= p.mass;
+        p.scale.y *= p.mass;
     });
 });
+
+// Отслеживание позиции курсора
+window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+// Адаптивность Pixi.js
+window.addEventListener('resize', () => {
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+});
+
+
+// ------------------------------------
+// GSAP: CONTENT ANIMATIONS
+// ------------------------------------
 
 // Анимация при загрузке страницы (Timeline)
 function setupIntroAnimation() {
     const tl = gsap.timeline({ defaults: { duration: 1.2, ease: "power3.out" } });
 
-    tl.to(".hero-section", { backgroundColor: "#1c1c1c", duration: 1.5 })
-      .fromTo(".scroll-down-indicator", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 }, "-=0.5")
-      // Анимируем заголовок целиком (без SplitText)
+    // Убираем анимацию смены фона (теперь за это отвечает Pixi.js)
+    tl.fromTo(".scroll-down-indicator", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 }, "-=0.5")
       .fromTo(".main-title", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1 }, "<") 
       .fromTo(".subtitle", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.6")
       .fromTo(".cta-button", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.4");
@@ -24,18 +99,11 @@ function setupIntroAnimation() {
 
 // Анимации при прокрутке (ScrollTrigger)
 function setupScrollAnimations() {
-    // 1. Анимация фона секций (меняем цвет по скроллу)
-    document.querySelectorAll('section[data-bg-color]').forEach(section => {
-        ScrollTrigger.create({
-            trigger: section,
-            start: "top center",
-            end: "bottom center",
-            onEnter: () => gsap.to("body", { backgroundColor: section.dataset.bgColor, duration: 0.8 }),
-            onLeaveBack: () => gsap.to("body", { backgroundColor: section.dataset.bgColor, duration: 0.8 }),
-        });
-    });
+    
+    // 1. Убираем анимацию фона секций (теперь только тело документа)
+    gsap.to("body", { backgroundColor: '#0F0F0F', duration: 0.8 }); 
 
-    // 2. Пиннинг секции и появление контента внутри нее
+    // 2. Пиннинг секции и появление контента внутри нее (ОСТАВЛЯЕМ)
     ScrollTrigger.create({
         trigger: ".pinned-section",
         pin: true, 
@@ -43,7 +111,7 @@ function setupScrollAnimations() {
         end: "+=200%", 
     });
 
-    // Появление заголовка и элементов сетки внутри пиннинговой секции
+    // Появление заголовка и элементов сетки 
     gsap.from(".pinned-content", {
         y: 50,
         opacity: 0,
@@ -71,34 +139,8 @@ function setupScrollAnimations() {
         }
     });
 
-
-    // 3. Параллакс-эффект
-    gsap.to(".parallax-section", {
-        backgroundPositionY: "bottom", 
-        ease: "none",
-        scrollTrigger: {
-            trigger: ".parallax-section",
-            start: "top bottom", 
-            end: "bottom top",   
-            scrub: true,
-        }
-    });
-
-    // Появление текста в параллакс-секции
-    gsap.from(".parallax-title, .parallax-text", {
-        y: 50,
-        opacity: 0,
-        stagger: 0.3,
-        duration: 1,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: ".parallax-section",
-            start: "top center",
-            toggleActions: "play none none reverse",
-        }
-    });
 }
 
-// Запускаем все анимации
+// Запускаем все
 setupIntroAnimation();
 setupScrollAnimations();
