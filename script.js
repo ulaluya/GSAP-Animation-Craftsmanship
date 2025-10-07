@@ -101,82 +101,26 @@ function setupIntroAnimation() {
 }
 
 function setupScrollAnimations() {
-    
-    // ВАША ОРИГИНАЛЬНАЯ ЛОГИКА SCROLLTRIGGER ДЛЯ ПИННИНГА (НЕ ИЗМЕНЯЛАСЬ)
-    ScrollTrigger.create({
-        trigger: ".pinned-section",
-        pin: true, 
-        start: "top top", 
-        end: "+=200%", 
-        markers: true // Оставляем маркеры для отладки
-    });
-
-    // ВАША ОРИГИНАЛЬНАЯ ЛОГИКА ДЛЯ АНИМАЦИИ ВНУТРИ ПИННИНГА
-    gsap.from(".pinned-content", {
-        y: 50,
-        opacity: 0,
-        duration: 1.2,
-        ease: "power2.out",
+    // Единый таймлайн: pin + анимации внутри, чтобы не было рассинхрона
+    const pinTl = gsap.timeline({
+        defaults: { ease: "power2.out" },
         scrollTrigger: {
             trigger: ".pinned-section",
-            start: "top center",
-            end: "top 20%",
-            scrub: true,
-        }
-    });
-
-    // ВАША ОРИГИНАЛЬНАЯ ЛОГИКА ДЛЯ АНИМАЦИИ СЕТКИ (stagger)
-    gsap.fromTo(".feature-item", 
-        { y: 50, opacity: 0 }, 
-        {
-            y: 0,           
-            opacity: 1,     
-            stagger: 0.3, 
-            duration: 1,
-            ease: "power2.out",
-            scrollTrigger: {
-                trigger: ".feature-grid", 
-                start: "top 80%",          
-                toggleActions: "play none none reverse", 
-                markers: true         
-            }
-        }
-    );
-    
-    // --- МОДИФИКАЦИИ ДЛЯ УЛУЧШЕНИЯ ИСПРАВЛЕНИЙ ---
-    
-    // 1. ДОБАВЛЕНИЕ ПАРАЛЛАКСА ФОНА PIXI.js
-    // Это помогает ScrollTrigger'у лучше отслеживать прокрутку
-    gsap.to("#pixi-canvas", {
-        y: () => -document.body.offsetHeight * 0.1, // Смещаем на 10% от высоты тела
-        ease: "none",
-        scrollTrigger: {
-            trigger: "body",
             start: "top top",
-            end: "bottom top",
+            end: "+=200%",
+            pin: true,
             scrub: true,
+            // id: "pinned-section-scroll" // Добавляем ID для отладки
         }
     });
-    
-    // 2. ДОБАВЛЕНИЕ ПЛАВНОЙ СМЕНЫ ЦВЕТА ФОНА BODY
-    // Переход с темного фона (Hero) на светлый (Pinned)
-    ScrollTrigger.create({
-        trigger: ".pinned-section",
-        start: "top center",
-        onEnter: () => gsap.to("body", { backgroundColor: "#F2F2F2", duration: 0.5 }),
-        onLeaveBack: () => gsap.to("body", { backgroundColor: "#0F0F0F", duration: 0.5 }),
-    });
 
-    // Обратный переход на темный фон (Footer)
-    ScrollTrigger.create({
-        trigger: ".footer-section",
-        start: "top bottom", 
-        onEnter: () => gsap.to("body", { backgroundColor: "#0F0F0F", duration: 0.5 }),
-        onLeaveBack: () => gsap.to("body", { backgroundColor: "#F2F2F2", duration: 0.5 }),
-    });
+    pinTl
+        .fromTo(".pinned-content", { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, 0)
+        .fromTo(".feature-item", { y: 60, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.25, duration: 0.8 }, 0.2);
+    
 }
 
-// Запускаем все анимации после полной загрузки (это было исправлением инициализации)
+// Запускаем все анимации после полной загрузки (DOM + изображения)
 window.addEventListener('load', () => {
     setupIntroAnimation();
     setupScrollAnimations();
