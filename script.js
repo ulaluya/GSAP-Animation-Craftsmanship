@@ -97,37 +97,82 @@ function setupIntroAnimation() {
       .fromTo(".main-title", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1 }, "<") 
       .fromTo(".subtitle", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.6")
       .fromTo(".cta-button", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.4");
-    
 }
 
 function setupScrollAnimations() {
-    // Единый таймлайн: pin + анимации внутри, чтобы не было рассинхрона
-    const pinTl = gsap.timeline({
-        defaults: { ease: "power2.out" },
-        gsap.to("#pixi-canvas", {
+    
+    // 1. Анимация ПИННИНГА (Секция Искусство) - ВАША ОРИГИНАЛЬНАЯ ЛОГИКА
+    ScrollTrigger.create({
+        trigger: ".pinned-section",
+        pin: true, 
+        start: "top top", 
+        end: "+=200%", 
+        markers: true // Оставляем маркеры для отладки
+    });
+    
+    // 2. Анимация появления контента внутри пиннинга
+    gsap.from(".pinned-content", {
+        y: 50,
+        opacity: 0,
+        duration: 1.2,
+        ease: "power2.out",
+        scrollTrigger: {
+            trigger: ".pinned-section",
+            start: "top center", // Начинаем, когда секция доходит до центра экрана
+            end: "top 20%",
+            scrub: true,
+        }
+    });
+
+    // 3. Анимация появления элементов сетки (stagger)
+    gsap.fromTo(".feature-item", 
+        { y: 50, opacity: 0 }, // Начальное состояние
+        {
+            y: 0,           // Конечное состояние
+            opacity: 1,     // Конечное состояние
+            stagger: 0.3, 
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+                trigger: ".feature-grid", // Триггером является feature-grid
+                start: "top 80%",          // Когда верх feature-grid дойдет до 80% снизу экрана
+                toggleActions: "play none none reverse", 
+                markers: true         
+            }
+        }
+    );
+
+    // --- ДОБАВЛЕННЫЕ УЛУЧШЕНИЯ И ИСПРАВЛЕНИЯ КОНФЛИКТОВ ---
+
+    // 4. ПАРАЛЛАКС ФОНА PIXI.js (Для более надежной работы скролла)
+    gsap.to("#pixi-canvas", {
         y: () => -document.body.offsetHeight * 0.1, // Смещаем на 10% от высоты тела
         ease: "none",
         scrollTrigger: {
-        trigger: "body",
-        start: "top top",
-        end: "bottom top",
-        scrub: true, // Плавное движение, привязанное к скроллу
-    }
-        ScrollTrigger.create({
-            trigger: ".pinned-section",
-            start: "top center",
-            onEnter: () => gsap.to("body", { backgroundColor: "#F2F2F2", duration: 0.5 }),
-            onLeaveBack: () => gsap.to("body", { backgroundColor: "#0F0F0F", duration: 0.5 }),
-    });
+            trigger: "body",
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+        }
     });
 
-    pinTl
-        .fromTo(".pinned-content", { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, 0)
-        .fromTo(".feature-item", { y: 60, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.25, duration: 0.8 }, 0.2);
-    
+    // 5. СМЕНА ЦВЕТА ФОНА BODY (с темного на светлый и обратно)
+    ScrollTrigger.create({
+        trigger: ".pinned-section",
+        start: "top center",
+        onEnter: () => gsap.to("body", { backgroundColor: "#F2F2F2", duration: 0.5 }),
+        onLeaveBack: () => gsap.to("body", { backgroundColor: "#0F0F0F", duration: 0.5 }),
+    });
+
+    ScrollTrigger.create({
+        trigger: ".footer-section",
+        start: "top bottom", // Когда футер появляется
+        onEnter: () => gsap.to("body", { backgroundColor: "#0F0F0F", duration: 0.5 }),
+        onLeaveBack: () => gsap.to("body", { backgroundColor: "#F2F2F2", duration: 0.5 }),
+    });
 }
 
-// Запускаем все анимации после полной загрузки (DOM + изображения)
+// Запускаем все анимации после полной загрузки (это было исправлением)
 window.addEventListener('load', () => {
     setupIntroAnimation();
     setupScrollAnimations();
