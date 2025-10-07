@@ -58,7 +58,6 @@ h1, h2, h3, p {
     padding: 5vw;
     box-sizing: border-box;
     position: relative;
-    overflow: hidden;
 }
 
 /* Background Colors */
