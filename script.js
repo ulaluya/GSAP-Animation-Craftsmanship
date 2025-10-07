@@ -100,6 +100,7 @@ function setupScrollAnimations() {
         pin: true, 
         start: "top top", 
         end: "+=200%", 
+        markers: true
     });
 
     gsap.from(".pinned-content", {
