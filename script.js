@@ -14,12 +14,10 @@ document.addEventListener('mousemove', function(e) {
 function setupIntroAnimation() {
     const tl = gsap.timeline({ defaults: { duration: 1.2, ease: "power3.out" } });
 
-    // Эффект "разделения" текста для заголовка
-    const mainTitle = new SplitText(".main-title", { type: "chars" });
-
     tl.to(".hero-section", { backgroundColor: "#1c1c1c", duration: 1.5 })
       .fromTo(".scroll-down-indicator", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 }, "-=0.5")
-      .from(mainTitle.chars, { opacity: 0, y: 50, stagger: 0.05, duration: 0.8 }, "<") // Анимация каждой буквы
+      // Анимируем заголовок целиком (без SplitText)
+      .fromTo(".main-title", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1 }, "<") 
       .fromTo(".subtitle", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.6")
       .fromTo(".cta-button", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.4");
 }
@@ -34,17 +32,15 @@ function setupScrollAnimations() {
             end: "bottom center",
             onEnter: () => gsap.to("body", { backgroundColor: section.dataset.bgColor, duration: 0.8 }),
             onLeaveBack: () => gsap.to("body", { backgroundColor: section.dataset.bgColor, duration: 0.8 }),
-            // markers: true // Для отладки
         });
     });
 
     // 2. Пиннинг секции и появление контента внутри нее
     ScrollTrigger.create({
         trigger: ".pinned-section",
-        pin: true, // "Приклеивает" секцию к окну
-        start: "top top", // Начинается, когда верх секции достигает верха экрана
-        end: "+=200%", // "Прилипнет" на высоту в 200% окна
-        // markers: true // Для отладки
+        pin: true, 
+        start: "top top", 
+        end: "+=200%", 
     });
 
     // Появление заголовка и элементов сетки внутри пиннинговой секции
@@ -58,7 +54,6 @@ function setupScrollAnimations() {
             start: "top center",
             end: "top 20%",
             scrub: true,
-            // markers: true
         }
     });
 
@@ -66,28 +61,26 @@ function setupScrollAnimations() {
     gsap.from(".feature-item", {
         y: 50,
         opacity: 0,
-        stagger: 0.3, // Появляются по очереди
+        stagger: 0.3, 
         duration: 1,
         ease: "power2.out",
         scrollTrigger: {
             trigger: ".feature-grid",
-            start: "top 80%", // Когда сетка появляется на 80% от верха
-            toggleActions: "play none none reverse", // Играть при входе, обратная анимация при выходе
-            // markers: true
+            start: "top 80%", 
+            toggleActions: "play none none reverse", 
         }
     });
 
 
     // 3. Параллакс-эффект
     gsap.to(".parallax-section", {
-        backgroundPositionY: "bottom", // Движение фона медленнее
+        backgroundPositionY: "bottom", 
         ease: "none",
         scrollTrigger: {
             trigger: ".parallax-section",
-            start: "top bottom", // Начинаем, когда секция появляется снизу
-            end: "bottom top",   // Заканчиваем, когда секция уходит наверх
+            start: "top bottom", 
+            end: "bottom top",   
             scrub: true,
-            // markers: true
         }
     });
 
@@ -102,7 +95,6 @@ function setupScrollAnimations() {
             trigger: ".parallax-section",
             start: "top center",
             toggleActions: "play none none reverse",
-            // markers: true
         }
     });
 }
