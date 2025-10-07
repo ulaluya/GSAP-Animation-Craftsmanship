@@ -8,11 +8,13 @@
 
 body {
     margin: 0;
-    font-family: 'Roboto', sans-serif; 
+    font-family: 'Roboto', sans-serif;
     background-color: var(--color-dark);
     color: var(--color-text-light);
     overflow-x: hidden;
     line-height: 1.6;
+    /* ГАРАНТИЯ СКРОЛЛА: min-height должен быть достаточным */
+    min-height: 100vh; 
 }
 
 h1, h2, h3, p {
@@ -20,7 +22,32 @@ h1, h2, h3, p {
     padding: 0;
 }
 
-/* Base Section Styles */
+/* ==================================== */
+/* PIXI.JS CANVAS CONTAINER (ФОН) */
+/* ==================================== */
+#pixi-canvas {
+    position: fixed; /* Закрепляем на месте, чтобы он не прокручивался */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0; /* Фон должен быть сзади */
+    /* КРИТИЧЕСКИ ВАЖНО: позволяет скроллу и кликам проходить СКВОЗЬ Canvas */
+    pointer-events: none; 
+}
+
+/* ==================================== */
+/* ОБЕРТКА КОНТЕНТА (НАД ФОНОМ) */
+/* ==================================== */
+.content-wrapper {
+    position: relative;
+    z-index: 1; /* Контент должен быть спереди */
+}
+
+
+/* ==================================== */
+/* BASE SECTION STYLES */
+/* ==================================== */
 .section-full {
     min-height: 100vh;
     display: flex;
@@ -30,30 +57,31 @@ h1, h2, h3, p {
     text-align: center;
     padding: 5vw;
     box-sizing: border-box;
-    position: relative; /* Для параллакса и пиннинга */
-    overflow: hidden; /* Важно для анимаций */
+    position: relative;
+    overflow: hidden;
 }
 
 /* Background Colors */
 .bg-dark { background-color: var(--color-dark); color: var(--color-text-light); }
 .bg-light { background-color: var(--color-light); color: var(--color-text-dark); }
-.bg-parallax { background-color: var(--color-dark); color: var(--color-text-light); } /* Будет фон-картинка */
 
-
-/* Hero Section (Intro) */
+/* Удаляем фон-цвет у hero-секции, чтобы просвечивал Pixi.js */
 .hero-section {
+    background-color: transparent !important; 
     position: relative;
 }
+
+/* Hero Section (Intro) */
 .main-title {
-    font-size: clamp(3em, 8vw, 6em); /* Адаптивный размер */
+    font-size: clamp(3em, 8vw, 6em);
     font-weight: 700;
     letter-spacing: 0.1em;
-    opacity: 0; /* Анимируем появление */
+    opacity: 0;
 }
 .subtitle {
     font-size: clamp(1em, 2vw, 1.5em);
     margin-top: 1em;
-    opacity: 0; /* Анимируем появление */
+    opacity: 0;
 }
 .cta-button {
     background-color: var(--color-accent);
@@ -63,7 +91,7 @@ h1, h2, h3, p {
     font-size: 1.1em;
     cursor: pointer;
     margin-top: 3em;
-    opacity: 0; /* Анимируем появление */
+    opacity: 0;
     border-radius: 5px;
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
@@ -92,9 +120,11 @@ h1, h2, h3, p {
     animation: scrollAnimation 1.5s infinite;
 }
 
+/* ==================================== */
 /* Pinned Section */
+/* ==================================== */
 .pinned-section {
-    align-items: flex-start; /* Контент прижат кверху */
+    align-items: flex-start;
     padding-top: 10vh;
     color: var(--color-text-dark);
 }
@@ -103,7 +133,7 @@ h1, h2, h3, p {
     width: 100%;
     margin: 0 auto;
     text-align: left;
-    transform: translateY(50px); /* Анимируем появление */
+    transform: translateY(50px);
     opacity: 0;
 }
 .section-title {
@@ -137,43 +167,9 @@ h1, h2, h3, p {
     color: #666;
 }
 
-/* Parallax Section */
-.parallax-section {
-    background-image: url('https://via.placeholder.com/1920x1080?text=Aura+Background'); /* Замени на реальную картинку */
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed; /* Для параллакса */
-    position: relative;
-}
-.parallax-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.6); /* Темный фильтр */
-    z-index: 1;
-}
-.parallax-section h2, .parallax-section p {
-    z-index: 2; /* Над оверлеем */
-    position: relative;
-}
-.parallax-title {
-    font-size: clamp(3em, 6vw, 5em);
-    margin-bottom: 0.5em;
-    opacity: 0;
-    transform: translateY(50px);
-}
-.parallax-text {
-    font-size: clamp(1em, 2vw, 1.5em);
-    max-width: 800px;
-    opacity: 0;
-    transform: translateY(30px);
-}
-
-/* Footer */
 .footer-section {
-    height: 30vh;
+    /* КРИТИЧЕСКИ ВАЖНО: Увеличен до 300vh, чтобы дать место для пиннинга */
+    min-height: 300vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -182,24 +178,9 @@ h1, h2, h3, p {
     font-size: 0.9em;
 }
 
-
-/* Cursor Follower */
-.cursor-follower {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 20px;
-    height: 20px;
-    background-color: var(--color-accent);
-    border-radius: 50%;
-    pointer-events: none; /* Не блокирует клики */
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-    opacity: 0.6;
-    mix-blend-mode: difference; /* Красивый эффект на разных фонах */
-}
-
-/* Animations (CSS fallback / base) */
+/* ==================================== */
+/* Animations (CSS) */
+/* ==================================== */
 @keyframes scrollAnimation {
     0% { transform: translate(-50%, 0); opacity: 1; }
     50% { transform: translate(-50%, 15px); opacity: 0.5; }
@@ -208,33 +189,7 @@ h1, h2, h3, p {
 
 /* Utility classes for GSAP */
 .split-text span {
-    display: inline-block; /* Важно для анимации по буквам */
+    display: inline-block;
 }
 .fade-in { opacity: 0; transform: translateY(20px); }
 .reveal-text, .reveal-item { opacity: 0; transform: translateY(30px); }
-
-
-#pixi-canvas {
-    position: fixed; /* Фиксирует фон */
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0; /* Фон должен быть сзади */
-    pointer-events: none; /* Чтобы не мешать кликам по контенту */
-}
-
-.content-wrapper {
-    position: relative;
-    z-index: 1; /* Контент должен быть спереди */
-}
-
-/* Удаляем фон-цвет с секций, чтобы просвечивал Pixi.js, 
-   кроме секций, где нужен светлый фон (например, pinned-section) */
-.hero-section {
-    background-color: transparent !important; /* Фон Pixi будет черным */
-}
-.bg-light { 
-    background-color: var(--color-light); 
-    color: var(--color-text-dark); 
-}
