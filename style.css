@@ -212,3 +212,29 @@ h1, h2, h3, p {
 }
 .fade-in { opacity: 0; transform: translateY(20px); }
 .reveal-text, .reveal-item { opacity: 0; transform: translateY(30px); }
+
+
+#pixi-canvas {
+    position: fixed; /* Фиксирует фон */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0; /* Фон должен быть сзади */
+    pointer-events: none; /* Чтобы не мешать кликам по контенту */
+}
+
+.content-wrapper {
+    position: relative;
+    z-index: 1; /* Контент должен быть спереди */
+}
+
+/* Удаляем фон-цвет с секций, чтобы просвечивал Pixi.js, 
+   кроме секций, где нужен светлый фон (например, pinned-section) */
+.hero-section {
+    background-color: transparent !important; /* Фон Pixi будет черным */
+}
+.bg-light { 
+    background-color: var(--color-light); 
+    color: var(--color-text-dark); 
+}
