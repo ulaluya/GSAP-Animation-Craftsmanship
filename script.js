@@ -113,7 +113,13 @@ function setupScrollAnimations() {
         end: "bottom top",
         scrub: true, // Плавное движение, привязанное к скроллу
     }
-});
+        ScrollTrigger.create({
+            trigger: ".pinned-section",
+            start: "top center",
+            onEnter: () => gsap.to("body", { backgroundColor: "#F2F2F2", duration: 0.5 }),
+            onLeaveBack: () => gsap.to("body", { backgroundColor: "#0F0F0F", duration: 0.5 }),
+    });
+    });
 
     pinTl
         .fromTo(".pinned-content", { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, 0)
