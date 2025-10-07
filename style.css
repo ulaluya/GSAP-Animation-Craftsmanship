@@ -169,7 +169,7 @@ h1, h2, h3, p {
 
 .footer-section {
     /* КРИТИЧЕСКИ ВАЖНО: Увеличен до 300vh, чтобы дать место для пиннинга */
-    min-height: 300vh;
+    min-height: 500vh;
     display: flex;
     justify-content: center;
     align-items: center;
