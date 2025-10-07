@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #121212; 
+    color: #ffffff;
+    overflow-x: hidden; 
+}
+
+.hero-section {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: #121212; 
+    transition: background-color 0.5s; 
+}
+
+.main-title, .subtitle, .cta-button {
+    opacity: 0; 
+    transform: translateY(20px);
+}
+
+.main-title {
+    font-size: 4em;
+    margin-bottom: 0.2em;
+}
+
+.scroll-section {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 100px;
+    background-color: #333;
+}
+
+.scroll-box {
+    width: 100px;
+    height: 100px;
+    background-color: #00bcd4; 
+    border-radius: 10px;
+    margin: 50px 0;
+}
